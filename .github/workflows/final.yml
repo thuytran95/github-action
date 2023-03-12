@@ -20,6 +20,11 @@ jobs:
         run: npm run lint
       - name: Test code
         run: npm run test
+      - name: Upload test report
+        uses: actions/upload-artifact@v3
+        with:
+          name: Test report
+          path: tes.json
   build:
     needs: test
     runs-on: ubuntu-latest
