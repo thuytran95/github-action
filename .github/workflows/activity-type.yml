@@ -1,4 +1,4 @@
-name: Deployment with lint and test
+name: Activity type
 on:
   pull_request:
     types:
