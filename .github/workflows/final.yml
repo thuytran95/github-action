@@ -22,7 +22,7 @@ jobs:
         id: run-tests # to specify test result and use in if condition below
         run: npm run test
       - name: Upload test report # this step will run if test fail
-        if: ${{ steps.run-tests.outcome == 'failure' }}
+        if: failure() && steps.run-tests.outcome == 'failure'
         uses: actions/upload-artifact@v3
         with:
           name: Test report
