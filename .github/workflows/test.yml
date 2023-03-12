@@ -5,7 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Get code
-      # when using an action of github action (uses: keyword)
+      # when using an action of github action
         uses: actions/checkout@v3
       - name: Install NodeJS
         uses: actions/setup-node@v3
