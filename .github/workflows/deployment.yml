@@ -12,7 +12,7 @@ jobs:
           node-version: 18
       - name: Install dependency
         run: npm ci
-      -name: Run linter
+      - name: Run linter
         run: npm run lint
   test:
     needs: lint
