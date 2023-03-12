@@ -30,7 +30,7 @@ jobs:
           path: node_modules
           key: deps-node-modules-${{hashFiles('**/package-lock.json')}}
       - name: Install dependency
-        if: steps.cache.outputs.cache-hit !== 'true' # be skipped if cache is exist
+        if: steps.cache.outputs.cache-hit != 'true' # be skipped if cache is exist
         run: npm ci
       - name: Test code
         id: run-tests # to specify test result and use in if condition below
@@ -56,7 +56,7 @@ jobs:
           path: node_modules
           key: deps-node-modules-${{hashFiles('**/package-lock.json')}}
       - name: Install dependency
-        if: steps.cache.outputs.cache-hit !== 'true' # be skipped if cache is exist
+        if: steps.cache.outputs.cache-hit != 'true' # be skipped if cache is exist
         run: npm ci
       - name: Build code
         run: npm run build
