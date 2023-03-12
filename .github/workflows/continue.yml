@@ -1,0 +1,99 @@
+name: Deploy website
+on:
+  push:
+    branches:
+      - main
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+      - name: Cache dependency
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: deps-node-modules-${{hashFiles('**/package-lock.json')}}
+      - name: Install dependency
+        run: npm ci
+      - name: Run linter
+        run: npm run lint
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+      - name: Cache dependency
+        uses: actions/cache@v3
+        id: cache #id to use in condition skip npm ci
+        with:
+          path: node_modules
+          key: deps-node-modules-${{hashFiles('**/package-lock.json')}}
+      - name: Install dependency
+        if: steps.cache.outputs.cache-hit != 'true' # be skipped if cache is exist
+        run: npm ci
+      - name: Test code
+        continue-on-error: true
+        id: run-tests # to specify test result and use in if condition below
+        run: npm run test
+      - name: Upload test report # this step will run if test fail
+        uses: actions/upload-artifact@v3
+        with:
+          name: Test report
+          path: test.json
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    outputs:
+      script-file: ${{ steps.publish.outputs.script-file }}
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+      - name: Cache dependency
+        id: cache #id to use in condition skip npm ci
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: deps-node-modules-${{hashFiles('**/package-lock.json')}}
+      - name: Install dependency
+        if: steps.cache.outputs.cache-hit != 'true' # be skipped if cache is exist
+        run: npm ci
+      - name: Build code
+        run: npm run build
+      - name: Publish JS filename
+        id: publish # inportant to set script-file
+        run: find dist/assets/*.js -type f -execdir echo '::set-output name=script-file::{}' ';'
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: dist-file
+          path: dist
+          # path: |
+          #   dist
+          #   package.json
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: dist-file #name given in build job
+      - name: Output contents
+        run: ls
+      - name: Output filename
+        run: echo "${{ needs.build.outputs.script-file }}"
+      - name: Deployment
+        run: echo "Deployment..."
+  report:
+    needs: [lint, deploy] # look at the whole chains of job test-> build -> deploy
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Output information
+        run: |
+          echo "Something went wrong"
+          echo "${{toJSON(github)}}"
+
+
+
