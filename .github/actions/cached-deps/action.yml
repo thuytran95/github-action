@@ -3,13 +3,14 @@ name: 'Get & cached Dependencies'
 description: 'Get dependencies (via npm) and cached them'
 runs:
   using: 'composite' #important always write this
-    - name: Cache dependencies
-        id: cache
-        uses: actions/cache@v3
-        with:
-          path: node_modules
-          key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
-    - name: Install dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: npm ci
-        shell: bash
+    steps:
+      - name: Cache dependencies
+          id: cache
+          uses: actions/cache@v3
+          with:
+            path: node_modules
+            key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
+      - name: Install dependencies
+          if: steps.cache.outputs.cache-hit != 'true'
+          run: npm ci
+          shell: bash
